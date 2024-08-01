@@ -1,61 +1,102 @@
+
 #!/usr/bin/python3
-"""N Queens placement on NxN chessboard"""
-
-
+""" Module that solves the nqueens challenge."""
 import sys
 
 
-def generate_solutions(row, column):
-    solution = [[]]
-    for queen in range(row):
-        solution = place_queen(queen, column, solution)
-    return solution
+def is_valid(board, row, col):
+    """
+    Check if a queen can be placed at board[row][col].
+
+    Args:
+        board (list): Current state of the board.
+        row (int): Row index.
+        col (int): Column index.
+
+    Returns:
+        bool: True if no other queens threaten the position,
+        False otherwise.
+    """
+    for i in range(row):
+        if board[i] == col or \
+           board[i] - i == col - row or \
+           board[i] + i == col + row:
+            return False
+    return True
 
 
-def place_queen(queen, column, prev_solution):
-    safe_position = []
-    for array in prev_solution:
-        for x in range(column):
-            if is_safe(queen, x, array):
-                safe_position.append(array + [x])
-    return safe_position
+def place_queens(board, row, n, solutions):
+    """
+    Recursively place queens on the board.
+
+    Args:
+        board (list): Current state of the board.
+        row (int): Current row to place the queen.
+        n (int): Size of the board.
+        solutions (list): List to store all valid solutions.
+    """
+    if row == n:
+        solutions.append(board[:])
+        return
+    for col in range(n):
+        if is_valid(board, row, col):
+            board[row] = col
+            place_queens(board, row + 1, n, solutions)
+            board[row] = -1
 
 
-def is_safe(q, x, array):
-    if x in array:
-        return (False)
-    else:
-        return all(abs(array[column] - x) != q - column
-                   for column in range(q))
+def solve_n_queens(n):
+    """
+    Solve the N-Queens problem.
+
+    Args:
+        n (int): Size of the board.
+
+    Returns:
+        list: List of all valid solutions, where each solution is a
+        list representing queen positions.
+    """
+    solutions = []
+    board = [-1] * n
+    place_queens(board, 0, n, solutions)
+    return solutions
 
 
-def init():
+def print_solutions(solutions, n):
+    """
+    Print all solutions in the required format.
+
+    Args:
+        solutions (list): List of all valid solutions.
+        n (int): Size of the board.
+    """
+    for solution in solutions:
+        formatted_solution = [[i, solution[i]] for i in range(n)]
+        print(formatted_solution)
+
+
+def main():
+    """
+    Main function to handle command-line arguments and solve
+    the N-Queens problem.
+    """
     if len(sys.argv) != 2:
         print("Usage: nqueens N")
         sys.exit(1)
-    if sys.argv[1].isdigit():
+
+    try:
         n = int(sys.argv[1])
-    else:
+    except ValueError:
         print("N must be a number")
         sys.exit(1)
+
     if n < 4:
         print("N must be at least 4")
         sys.exit(1)
-    return (n)
+
+    solutions = solve_n_queens(n)
+    print_solutions(solutions, n)
 
 
-def n_queens():
-
-    n = init()
-    # generate all solutions
-    solutions = generate_solutions(n, n)
-    # print solutions
-    for array in solutions:
-        clean = []
-        for q, x in enumerate(array):
-            clean.append([q, x])
-        print(clean)
-
-
-if __name__ == '__main__':
-    n_queens()
+if __name__ == "__main__":
+    main()
