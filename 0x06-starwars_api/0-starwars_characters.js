@@ -37,4 +37,4 @@ async function getFilmAndCharacters (url) {
   }
 }
 
-getFilmAndCharacters(url)
+getFilmAndCharacters(url);
